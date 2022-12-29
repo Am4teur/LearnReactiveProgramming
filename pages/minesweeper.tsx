@@ -126,11 +126,27 @@ const Minesweeper = (): JSX.Element => {
     }
   };
 
-  const showMineSquare = (mine: MineField) => {
-    if (mine.clicked && mine.minesAround === 10) return "💥";
-    else if (mine.clicked) return mine.minesAround;
-    else if (mine.symbol !== "") return mine.symbol;
-    else if (!mine.clicked) return "";
+  const getBackgroundImage = (mine: MineField): string => {
+    const mapping: any = {
+      0: "bg-0",
+      1: "bg-1",
+      2: "bg-2",
+      3: "bg-3",
+      4: "bg-4",
+      5: "bg-5",
+      6: "bg-6",
+      7: "bg-7",
+      8: "bg-8",
+      "🚩": "bg-flag",
+      "❔": "bg-flag_red",
+    };
+
+    if (mine.clicked && mine.minesAround === 10) return "bg-mine";
+    else if (mine.clicked) return mapping[mine.minesAround];
+    else if (mine.symbol !== "") return mapping[mine.symbol];
+    else if (!mine.clicked) return "bg-closed";
+
+    return "bg-start";
   };
 
   const handleLeftClick = (i: number, j: number): void => {
@@ -184,14 +200,11 @@ const Minesweeper = (): JSX.Element => {
           <div className="flex" key={i}>
             {row.map((mine: MineField, j: number) => (
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 w-16 h-16 border-solid border-2 border-sky-500"
-                // className="bg-[url('/minesweeperDesignImages/bg-square.svg')]"
+                className={`bg-cover w-16 h-16 ${getBackgroundImage(mine)}`}
                 key={`${i} ${j}`}
                 onClick={() => handleLeftClick(i, j)}
                 onContextMenu={(e) => handleRightClick(e, i, j)}
-              >
-                {showMineSquare(mine)}
-              </button>
+              ></button>
             ))}
           </div>
         ))}
