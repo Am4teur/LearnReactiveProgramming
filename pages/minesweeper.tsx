@@ -50,9 +50,13 @@ const Minesweeper = (): JSX.Element => {
     return sub.unsubscribe();
   }, []);
 
+  const isValid = (i: number, j: number) => {
+    return i >= 0 && j >= 0 && i < size && j < size;
+  };
+
   const openMineField = (arr: MineField[][], i: number, j: number) => {
     const dfs = (i: number, j: number) => {
-      if (i >= 0 && j >= 0 && i < size && j < size) {
+      if (isValid(i, j)) {
         if (arr[i][j].minesAround === 0 && arr[i][j].clicked !== true) {
           arr[i][j].clicked = true;
           dfs(i + 1, j);
@@ -74,6 +78,54 @@ const Minesweeper = (): JSX.Element => {
     return arr;
   };
 
+  const isSquareFlagged = (i: number, j: number): boolean =>
+    isValid(i, j) && mineField[i][j].symbol === "🚩";
+
+  const isSquareBomb = (i: number, j: number): boolean =>
+    isValid(i, j) && mineField[i][j].minesAround === mine;
+
+  const isSquareEmpty = (i: number, j: number): boolean =>
+    isValid(i, j) && mineField[i][j].minesAround === 0;
+
+  const countFlagsAround = (
+    squaresAround: number[][],
+    i: number,
+    j: number
+  ): number => {
+    return squaresAround.reduce(
+      (sum, [x, y]) => sum + (isSquareFlagged(i + x, j + y) ? 1 : 0),
+      0
+    );
+  };
+
+  const openAroundSquare = (i: number, j: number): void => {
+    const squaresAround: number[][] = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, -1],
+      [0, 1],
+      [1, -1],
+      [1, 0],
+      [1, 1],
+    ];
+    const numOfFlags = countFlagsAround(squaresAround, i, j);
+
+    if (numOfFlags === mineField[i][j].minesAround) {
+      squaresAround.forEach(([x, y]) => {
+        if (isSquareBomb(i + x, j + y) && !isSquareFlagged(i + x, j + y)) {
+          // Gameover
+          console.log("game over square around");
+        }
+        if (isSquareEmpty(i + x, j + y)) {
+          openMineField(mineField, i + x, j + y);
+        }
+        if (isValid(i + x, j + y) && !isSquareFlagged(i + x, j + y))
+          mineField[i + x][j + y].clicked = true;
+      });
+    }
+  };
+
   const showMineSquare = (mine: MineField) => {
     if (mine.clicked && mine.minesAround === 10) return "💥";
     else if (mine.clicked) return mine.minesAround;
@@ -81,11 +133,17 @@ const Minesweeper = (): JSX.Element => {
     else if (!mine.clicked) return "";
   };
 
-  const handleLeftClick = (i: number, j: number) => {
+  const handleLeftClick = (i: number, j: number): void => {
     let newMineField = [...mineField];
 
-    // if(newMineField is first time)
-    // generate maze with 0 on the clicked position
+    if (newMineField[i][j].symbol) {
+      return;
+    }
+
+    if (newMineField[i][j].clicked) {
+      //check if already has minesAround number of flags
+      openAroundSquare(i, j);
+    }
 
     newMineField[i][j].minesAround === 0
       ? (newMineField = openMineField(newMineField, i, j))
@@ -121,12 +179,13 @@ const Minesweeper = (): JSX.Element => {
     <div>
       <p>{gameOver ? "Game Over" : "Game is On"}</p>
       <p>Score: {score}</p>
-      <div className="w-full min-h-screen flex flex-col justify-center items-center gap-4">
+      <div className="w-full min-h-screen flex flex-col justify-center items-center">
         {mineField.map((row: MineField[], i: number) => (
-          <div className="flex gap-4" key={i}>
+          <div className="flex" key={i}>
             {row.map((mine: MineField, j: number) => (
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-16 h-16"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 w-16 h-16 border-solid border-2 border-sky-500"
+                // className="bg-[url('/minesweeperDesignImages/bg-square.svg')]"
                 key={`${i} ${j}`}
                 onClick={() => handleLeftClick(i, j)}
                 onContextMenu={(e) => handleRightClick(e, i, j)}
