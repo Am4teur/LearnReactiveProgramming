@@ -3,19 +3,22 @@ import { map, of } from "rxjs";
 // import { renderMinefield, renderScore, renderGameOver } from './html-renderer';
 import { mine, size } from "@models/constants";
 import { addMarks, addMines } from "@models/mines";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type Symbol = "🚩" | "❔" | "";
+type GameState = "" | "W" | "L";
 
 interface MineField {
   minesAround: number;
   clicked: boolean;
   symbol: Symbol;
+  start: boolean;
 }
 
 const Minesweeper = (): JSX.Element => {
   const [score, setScore] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
+  const [isEasyStart, setIsEasyStart] = useState<boolean>(true);
+  const [gameState, setGameState] = useState<GameState>("");
   const [mineField, setMineField] = useState<MineField[][]>(
     Array(size)
       .fill(0)
@@ -24,31 +27,54 @@ const Minesweeper = (): JSX.Element => {
           minesAround: -1,
           clicked: false,
           symbol: "",
+          start: false,
         })
       )
   );
 
+  function getRandomInt(max: number) {
+    return Math.floor(Math.random() * max);
+  }
+
   const addClicked = (mines: number[][]): MineField[][] => {
-    return mines.map((row: number[]) =>
-      row.map((elem: number) => ({
-        minesAround: elem,
-        clicked: false,
-        symbol: "",
-      }))
+    const zeros: { x: number; y: number }[] = [];
+    const newMines = mines.map((row: number[], i: number) =>
+      row.map((elem: number, j: number) => {
+        if (elem === 0) {
+          zeros.push({ x: i, y: j });
+        }
+        return {
+          minesAround: elem,
+          clicked: false,
+          symbol: "" as Symbol,
+          start: false,
+        };
+      })
     );
+
+    if (isEasyStart) {
+      const coord: { x: number; y: number } = zeros[getRandomInt(zeros.length)];
+      newMines[coord.x][coord.y].start = true;
+    }
+
+    return newMines;
   };
 
-  useEffect(() => {
+  const getMinesSubscription = useCallback(() => {
     const mines$ = of(
       Array(size)
         .fill(0)
         .map(() => Array(size).fill(0))
     ).pipe(map(addMines), map(addMarks), map(addClicked));
 
-    const sub = mines$.subscribe(setMineField);
+    return mines$.subscribe(setMineField);
+  }, []);
+
+  useEffect(() => {
+    const sub = getMinesSubscription();
 
     return sub.unsubscribe();
-  }, []);
+  }, [getMinesSubscription]);
 
   const isValid = (i: number, j: number) => {
     return i >= 0 && j >= 0 && i < size && j < size;
@@ -114,14 +140,15 @@ const Minesweeper = (): JSX.Element => {
     if (numOfFlags === mineField[i][j].minesAround) {
       squaresAround.forEach(([x, y]) => {
         if (isSquareBomb(i + x, j + y) && !isSquareFlagged(i + x, j + y)) {
-          // Gameover
-          console.log("game over square around");
+          handleGameOver();
         }
         if (isSquareEmpty(i + x, j + y)) {
           openMineField(mineField, i + x, j + y);
         }
-        if (isValid(i + x, j + y) && !isSquareFlagged(i + x, j + y))
+        if (isValid(i + x, j + y) && !isSquareFlagged(i + x, j + y)) {
           mineField[i + x][j + y].clicked = true;
+          handleIfWinner(mineField);
+        }
       });
     }
   };
@@ -141,38 +168,80 @@ const Minesweeper = (): JSX.Element => {
       "❔": "bg-flag_red",
     };
 
+    if (mine.start) return "bg-start";
     if (mine.clicked && mine.minesAround === 10) return "bg-mine";
+    if (mine.clicked && mine.minesAround === 11) return "bg-mine_red";
     else if (mine.clicked) return mapping[mine.minesAround];
     else if (mine.symbol !== "") return mapping[mine.symbol];
-    else if (!mine.clicked) return "bg-closed";
-
-    return "bg-start";
+    else return "bg-closed";
   };
 
-  const handleLeftClick = (i: number, j: number): void => {
+  const openAllMineField = () => {
     let newMineField = [...mineField];
-
-    if (newMineField[i][j].symbol) {
-      return;
-    }
-
-    if (newMineField[i][j].clicked) {
-      //check if already has minesAround number of flags
-      openAroundSquare(i, j);
-    }
-
-    newMineField[i][j].minesAround === 0
-      ? (newMineField = openMineField(newMineField, i, j))
-      : null;
-
-    newMineField[i][j].clicked = true;
-    newMineField[i][j].minesAround === mine ? setGameOver(true) : null;
+    newMineField.forEach((row: any) => {
+      row.forEach((mine: any) => {
+        mine.clicked = true;
+      });
+    });
 
     setMineField(newMineField);
   };
 
+  const handleIfWinner = (mineField: MineField[][]) => {
+    for (let i = 0; i < mineField.length; i++) {
+      for (let j = 0; j < mineField[i].length; j++) {
+        if (mineField[i][j].minesAround !== mine && !mineField[i][j].clicked)
+          return false;
+      }
+    }
+    setGameState("W");
+  };
+
+  const handleGameOver = () => {
+    setGameState("L");
+    openAllMineField();
+  };
+
+  const handleReset = () => {
+    getMinesSubscription();
+    setGameState("");
+  };
+
+  const handleLeftClick = (i: number, j: number): void => {
+    if (!!gameState) {
+      return;
+    }
+
+    let newMineField = [...mineField];
+
+    if (newMineField[i][j].clicked) {
+      openAroundSquare(i, j);
+    } else {
+      if (newMineField[i][j].symbol) {
+        return;
+      }
+
+      newMineField[i][j].minesAround === 0
+        ? (newMineField = openMineField(newMineField, i, j))
+        : null;
+
+      newMineField[i][j].clicked = true;
+      newMineField[i][j].start = false;
+      if (newMineField[i][j].minesAround === mine) {
+        newMineField[i][j].minesAround = mine + 1;
+        handleGameOver();
+      } else console.log(handleIfWinner(newMineField));
+
+      setMineField(newMineField);
+    }
+  };
+
   const handleRightClick = (e: any, i: number, j: number) => {
     e.preventDefault();
+    if (!!gameState) {
+      return;
+    }
+
     const newMineField = [...mineField];
 
     const nextSymbol: any = {
@@ -193,9 +262,19 @@ const Minesweeper = (): JSX.Element => {
 
   return (
     <div>
-      <p>{gameOver ? "Game Over" : "Game is On"}</p>
+      <p>
+        {!!gameState
+          ? gameState === "L"
+            ? "Game Over"
+            : "You Won!"
+          : "Game is On"}
+      </p>
       <p>Score: {score}</p>
       <div className="w-full min-h-screen flex flex-col justify-center items-center">
+        <button
+          className={`bg-cover w-16 h-16 bg-reset`}
+          onClick={handleReset}
+        ></button>
         {mineField.map((row: MineField[], i: number) => (
           <div className="flex" key={i}>
             {row.map((mine: MineField, j: number) => (
