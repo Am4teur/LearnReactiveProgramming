@@ -1,9 +1,11 @@
 // RxJS v6+
 import { map, of } from "rxjs";
 // import { renderMinefield, renderScore, renderGameOver } from './html-renderer';
-import { mine, size } from "@models/constants";
+import { bomb, size } from "@models/constants";
 import { addMarks, addMines } from "@models/mines";
+import NextImage from "next/image";
 import { useCallback, useEffect, useState } from "react";
+import styles from "../styles/Grid.module.css";
 
 type Symbol = "🚩" | "❔" | "";
 type GameState = "" | "W" | "L";
@@ -108,7 +110,7 @@ const Minesweeper = (): JSX.Element => {
     isValid(i, j) && mineField[i][j].symbol === "🚩";
 
   const isSquareBomb = (i: number, j: number): boolean =>
-    isValid(i, j) && mineField[i][j].minesAround === mine;
+    isValid(i, j) && mineField[i][j].minesAround === bomb;
 
   const isSquareEmpty = (i: number, j: number): boolean =>
     isValid(i, j) && mineField[i][j].minesAround === 0;
@@ -117,12 +119,11 @@ const Minesweeper = (): JSX.Element => {
     squaresAround: number[][],
     i: number,
     j: number
-  ): number => {
-    return squaresAround.reduce(
+  ): number =>
+    squaresAround.reduce(
       (sum, [x, y]) => sum + (isSquareFlagged(i + x, j + y) ? 1 : 0),
       0
     );
-  };
 
   const openAroundSquare = (i: number, j: number): void => {
     const squaresAround: number[][] = [
@@ -155,32 +156,23 @@ const Minesweeper = (): JSX.Element => {
 
   const getBackgroundImage = (mine: MineField): string => {
     const mapping: any = {
-      0: "bg-0",
-      1: "bg-1",
-      2: "bg-2",
-      3: "bg-3",
-      4: "bg-4",
-      5: "bg-5",
-      6: "bg-6",
-      7: "bg-7",
-      8: "bg-8",
-      "🚩": "bg-flag",
-      "❔": "bg-flag_red",
+      "🚩": "flag",
+      "❔": "flag_red",
     };
 
-    if (mine.start) return "bg-start";
-    if (mine.clicked && mine.minesAround === 10) return "bg-mine";
-    if (mine.clicked && mine.minesAround === 11) return "bg-mine_red";
-    else if (mine.clicked) return mapping[mine.minesAround];
+    if (mine.start) return "start";
+    if (mine.clicked && mine.minesAround === bomb) return "mine";
+    if (mine.clicked && mine.minesAround === bomb + 1) return "mine_red";
+    else if (mine.clicked) return mine.minesAround.toString();
     else if (mine.symbol !== "") return mapping[mine.symbol];
-    else return "bg-closed";
+    else return "closed";
   };
 
   const openAllMineField = () => {
     let newMineField = [...mineField];
-    newMineField.forEach((row: any) => {
-      row.forEach((mine: any) => {
-        mine.clicked = true;
+    newMineField.forEach((row: MineField[]) => {
+      row.forEach((mine: MineField) => {
+        if (mine.minesAround === bomb) mine.clicked = true;
       });
     });
 
@@ -190,7 +182,7 @@ const Minesweeper = (): JSX.Element => {
   const handleIfWinner = (mineField: MineField[][]) => {
     for (let i = 0; i < mineField.length; i++) {
       for (let j = 0; j < mineField[i].length; j++) {
-        if (mineField[i][j].minesAround !== mine && !mineField[i][j].clicked)
+        if (mineField[i][j].minesAround !== bomb && !mineField[i][j].clicked)
           return false;
       }
     }
@@ -227,13 +219,12 @@ const Minesweeper = (): JSX.Element => {
 
       newMineField[i][j].clicked = true;
       newMineField[i][j].start = false;
-      if (newMineField[i][j].minesAround === mine) {
-        newMineField[i][j].minesAround = mine + 1;
+      if (newMineField[i][j].minesAround === bomb) {
+        newMineField[i][j].minesAround = bomb + 1;
         handleGameOver();
-      } else console.log(handleIfWinner(newMineField));
-
-      setMineField(newMineField);
+      } else handleIfWinner(newMineField);
     }
+    setMineField(newMineField);
   };
 
   const handleRightClick = (e: any, i: number, j: number) => {
@@ -261,7 +252,7 @@ const Minesweeper = (): JSX.Element => {
   };
 
   return (
-    <div>
+    <div className="flex flex-col items-center justify-center">
       <p>
         {!!gameState
           ? gameState === "L"
@@ -270,23 +261,50 @@ const Minesweeper = (): JSX.Element => {
           : "Game is On"}
       </p>
       <p>Score: {score}</p>
-      <div className="w-full min-h-screen flex flex-col justify-center items-center">
-        <button
-          className={`bg-cover w-16 h-16 bg-reset`}
-          onClick={handleReset}
-        ></button>
-        {mineField.map((row: MineField[], i: number) => (
-          <div className="flex" key={i}>
-            {row.map((mine: MineField, j: number) => (
-              <button
-                className={`bg-cover w-16 h-16 ${getBackgroundImage(mine)}`}
-                key={`${i} ${j}`}
-                onClick={() => handleLeftClick(i, j)}
-                onContextMenu={(e) => handleRightClick(e, i, j)}
-              ></button>
-            ))}
-          </div>
-        ))}
+      <button onClick={handleReset}>
+        <NextImage
+          src={"/minesweeperDesignImages/" + "reset" + ".svg"}
+          width={64}
+          height={64}
+          alt="cell"
+        ></NextImage>
+      </button>
+
+      <div className={styles.minesweeperGrid}>
+        <div className="bg-corner_up_left bg-cover"></div>
+        <div className="bg-border_hor bg-contain"></div>
+        <div className="bg-corner_up_right bg-cover"></div>
+
+        <div className="bg-border_ver bg-contain"></div>
+        <div className="flex flex-col">
+          {mineField.map((row: MineField[], i: number) => (
+            <div className="flex" key={i}>
+              {row.map((mine: MineField, j: number) => (
+                <button
+                  key={`${i} ${j}`}
+                  onClick={() => handleLeftClick(i, j)}
+                  onContextMenu={(e) => handleRightClick(e, i, j)}
+                >
+                  <NextImage
+                    src={
+                      "/minesweeperDesignImages/" +
+                      getBackgroundImage(mine) +
+                      ".svg"
+                    }
+                    width={64}
+                    height={64}
+                    alt="cell"
+                  ></NextImage>
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className="bg-border_ver bg-contain"></div>
+
+        <div className="bg-corner_bottom_left bg-cover"></div>
+        <div className="bg-border_hor bg-contain"></div>
+        <div className="bg-corner_bottom_right bg-cover"></div>
       </div>
     </div>
   );

@@ -1,2 +1,2 @@
-export const mine = 10;
+export const bomb = 10;
 export const size = 6;

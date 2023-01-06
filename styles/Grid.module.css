@@ -1,0 +1,5 @@
+.minesweeperGrid {
+  display: grid;
+  grid-template-columns: 36px minmax(auto, max-content) 36px;
+  grid-template-rows: 33px auto 33px;
+}
