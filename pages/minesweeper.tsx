@@ -7,8 +7,19 @@ import NextImage from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import styles from "../styles/Grid.module.css";
 
-type Symbol = "🚩" | "❔" | "";
+type Symbol = "" | "🚩" | "❔";
 type GameState = "" | "W" | "L";
+
+const symbols: { [key in string]: Symbol } = {
+  EMPTY: "",
+  FLAG: "🚩",
+  Q_MARK: "❔",
+};
+const gameStates: { [key in string]: GameState } = {
+  PLAYING: "",
+  WINNER: "W",
+  LOSER: "L",
+};
 
 interface MineField {
   minesAround: number;
@@ -20,7 +31,7 @@ interface MineField {
 const Minesweeper = (): JSX.Element => {
   const [score, setScore] = useState(0);
   const [isEasyStart, setIsEasyStart] = useState<boolean>(true);
-  const [gameState, setGameState] = useState<GameState>("");
+  const [gameState, setGameState] = useState<GameState>(gameStates.PLAYING);
   const [mineField, setMineField] = useState<MineField[][]>(
     Array(size)
       .fill(0)
@@ -28,7 +39,7 @@ const Minesweeper = (): JSX.Element => {
         Array(size).fill({
           minesAround: -1,
           clicked: false,
-          symbol: "",
+          symbol: symbols.EMPTY,
           start: false,
         })
       )
@@ -48,7 +59,7 @@ const Minesweeper = (): JSX.Element => {
         return {
           minesAround: elem,
           clicked: false,
-          symbol: "" as Symbol,
+          symbol: symbols.EMPTY,
           start: false,
         };
       })
@@ -107,7 +118,7 @@ const Minesweeper = (): JSX.Element => {
   };
 
   const isSquareFlagged = (i: number, j: number): boolean =>
-    isValid(i, j) && mineField[i][j].symbol === "🚩";
+    isValid(i, j) && mineField[i][j].symbol === symbols.FLAG;
 
   const isSquareBomb = (i: number, j: number): boolean =>
     isValid(i, j) && mineField[i][j].minesAround === bomb;
@@ -155,7 +166,8 @@ const Minesweeper = (): JSX.Element => {
   };
 
   const getBackgroundImage = (mine: MineField): string => {
-    const mapping: any = {
+    const mapping: { [key in Symbol]: string } = {
+      "": "closed",
       "🚩": "flag",
       "❔": "flag_red",
     };
@@ -164,8 +176,8 @@ const Minesweeper = (): JSX.Element => {
     if (mine.clicked && mine.minesAround === bomb) return "mine";
     if (mine.clicked && mine.minesAround === bomb + 1) return "mine_red";
     else if (mine.clicked) return mine.minesAround.toString();
-    else if (mine.symbol !== "") return mapping[mine.symbol];
-    else return "closed";
+    // else if (mine.symbol !== "")
+    else return mapping[mine.symbol];
   };
 
   const openAllMineField = () => {
@@ -186,17 +198,17 @@ const Minesweeper = (): JSX.Element => {
           return false;
       }
     }
-    setGameState("W");
+    setGameState(gameStates.WINNER);
   };
 
   const handleGameOver = () => {
-    setGameState("L");
+    setGameState(gameStates.LOSER);
     openAllMineField();
   };
 
   const handleReset = () => {
     getMinesSubscription();
-    setGameState("");
+    setGameState(gameStates.PLAYING);
   };
 
   const handleLeftClick = (i: number, j: number): void => {
@@ -235,35 +247,37 @@ const Minesweeper = (): JSX.Element => {
 
     const newMineField = [...mineField];
 
-    const nextSymbol: any = {
-      "": "🚩",
-      "🚩": "❔",
-      "❔": "",
+    const nextSymbol: { [key in Symbol]: Symbol } = {
+      "": symbols.FLAG,
+      "🚩": symbols.Q_MARK,
+      "❔": symbols.EMPTY,
     };
 
     newMineField[i][j].symbol = nextSymbol[newMineField[i][j].symbol];
-    if (newMineField[i][j].symbol === "🚩") {
+    if (newMineField[i][j].symbol === symbols.FLAG) {
       setScore((prev) => prev + 1);
-    } else if (newMineField[i][j].symbol === "❔") {
+    } else if (newMineField[i][j].symbol === symbols.Q_MARK) {
       setScore((prev) => prev - 1);
     }
 
     setMineField(newMineField);
   };
 
+  const getGameState = (): string => {
+    const gameStateMapping: { [key in GameState]: string } = {
+      "": "/gameState/playing.svg",
+      W: "/gameState/winner.svg",
+      L: "/gameState/loser.svg",
+    };
+    return gameStateMapping[gameState];
+  };
+
   return (
     <div className="flex flex-col items-center justify-center">
-      <p>
-        {!!gameState
-          ? gameState === "L"
-            ? "Game Over"
-            : "You Won!"
-          : "Game is On"}
-      </p>
       <p>Score: {score}</p>
       <button onClick={handleReset}>
         <NextImage
-          src={"/minesweeperDesignImages/" + "reset" + ".svg"}
+          src={getGameState()}
           width={64}
           height={64}
           alt="cell"

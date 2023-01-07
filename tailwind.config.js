@@ -13,7 +13,6 @@ module.exports = {
         flag_red: "url('../public/minesweeperDesignImages/flag_red.svg')",
         mine: "url('../public/minesweeperDesignImages/mine.svg')",
         mine_red: "url('../public/minesweeperDesignImages/mine_red.svg')",
-        reset: "url('../public/minesweeperDesignImages/reset.svg')",
         0: "url('../public/minesweeperDesignImages/0.svg')",
         1: "url('../public/minesweeperDesignImages/1.svg')",
         2: "url('../public/minesweeperDesignImages/2.svg')",
