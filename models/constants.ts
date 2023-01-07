@@ -1,2 +1,3 @@
 export const bomb = 10;
-export const size = 6;
+export const size = 10;
+export const n_bombs = 14;

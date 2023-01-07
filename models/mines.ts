@@ -1,9 +1,10 @@
-import { bomb, size } from "./constants";
+import { bomb, n_bombs, size } from "./constants";
 
 const randomNumber = () => Math.floor(Math.random() * Math.floor(size));
 
 export const addMines = (arr: any) => {
-  for (let i = 0; i < size / 2; i++) {
+  for (let i = 0; i < n_bombs; i++) {
+    if (arr[randomNumber()][randomNumber()] === bomb) i--;
     arr[randomNumber()][randomNumber()] = bomb;
   }
 
