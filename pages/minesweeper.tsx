@@ -275,19 +275,28 @@ const Minesweeper = (): JSX.Element => {
   return (
     <div className="flex flex-col items-center justify-center">
       <p>Score: {score}</p>
-      <button onClick={handleReset}>
-        <NextImage
-          src={getGameState()}
-          width={64}
-          height={64}
-          alt="cell"
-        ></NextImage>
-      </button>
 
       <div className={styles.minesweeperGrid}>
         <div className="bg-corner_up_left bg-cover"></div>
         <div className="bg-border_hor bg-contain"></div>
         <div className="bg-corner_up_right bg-cover"></div>
+
+        <div className="bg-border_ver bg-contain"></div>
+        <div className="flex justify-center py-2 bg-silver">
+          <button onClick={handleReset}>
+            <NextImage
+              src={getGameState()}
+              width={64}
+              height={64}
+              alt="cell"
+            ></NextImage>
+          </button>
+        </div>
+        <div className="bg-border_ver bg-contain"></div>
+
+        <div className="bg-corner_mid_left bg-cover"></div>
+        <div className="bg-border_hor bg-contain"></div>
+        <div className="bg-corner_mid_right bg-cover"></div>
 
         <div className="bg-border_ver bg-contain"></div>
         <div className="flex flex-col">

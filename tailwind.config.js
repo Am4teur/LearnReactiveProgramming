@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        silver: "#c6c6c6",
+      },
       backgroundImage: {
         closed: "url('../public/minesweeperDesignImages/closed.svg')",
         start: "url('../public/minesweeperDesignImages/start.svg')",
@@ -22,16 +25,19 @@ module.exports = {
         6: "url('../public/minesweeperDesignImages/6.svg')",
         7: "url('../public/minesweeperDesignImages/7.svg')",
         8: "url('../public/minesweeperDesignImages/8.svg')",
-        corner_up_left:
-          "url('../public/minesweeperDesignImages/corner_up_left.png')",
+        corner_up_left: "url('../public/minefieldBorders/corner_up_left.png')",
         corner_up_right:
-          "url('../public/minesweeperDesignImages/corner_up_right.png')",
+          "url('../public/minefieldBorders/corner_up_right.png')",
+        corner_mid_left:
+          "url('../public/minefieldBorders/corner_mid_left.png')",
+        corner_mid_right:
+          "url('../public/minefieldBorders/corner_mid_right.png')",
         corner_bottom_left:
-          "url('../public/minesweeperDesignImages/corner_bottom_left.png')",
+          "url('../public/minefieldBorders/corner_bottom_left.png')",
         corner_bottom_right:
-          "url('../public/minesweeperDesignImages/corner_bottom_right.png')",
-        border_hor: "url('../public/minesweeperDesignImages/border_hor.png')",
-        border_ver: "url('../public/minesweeperDesignImages/border_vert.png')",
+          "url('../public/minefieldBorders/corner_bottom_right.png')",
+        border_hor: "url('../public/minefieldBorders/border_hor.png')",
+        border_ver: "url('../public/minefieldBorders/border_vert.png')",
       },
     },
   },
