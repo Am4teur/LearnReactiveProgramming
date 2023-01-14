@@ -49,7 +49,7 @@ const Minesweeper = (): JSX.Element => {
     return Math.floor(Math.random() * max);
   }
 
-  const addClicked = (mines: number[][]): MineField[][] => {
+  const addClicked = useCallback((mines: number[][]): MineField[][] => {
     const zeros: { x: number; y: number }[] = [];
     const newMines = mines.map((row: number[], i: number) =>
       row.map((elem: number, j: number) => {
@@ -71,7 +71,7 @@ const Minesweeper = (): JSX.Element => {
     }
 
     return newMines;
-  };
+  }, []);
 
   const getMinesSubscription = useCallback(() => {
     const mines$ = of(
@@ -81,7 +81,7 @@ const Minesweeper = (): JSX.Element => {
     ).pipe(map(addMines), map(addMarks), map(addClicked));
 
     return mines$.subscribe(setMineField);
-  }, []);
+  }, [addClicked]);
 
   useEffect(() => {
     const sub = getMinesSubscription();
@@ -89,9 +89,17 @@ const Minesweeper = (): JSX.Element => {
     return sub.unsubscribe();
   }, [getMinesSubscription]);
 
-  const isValid = (i: number, j: number) => {
-    return i >= 0 && j >= 0 && i < size && j < size;
-  };
+  const isValid = (i: number, j: number) =>
+    i >= 0 && j >= 0 && i < size && j < size;
+
+  const isSquareFlagged = (i: number, j: number): boolean =>
+    isValid(i, j) && mineField[i][j].symbol === symbols.FLAG;
+
+  const isSquareBomb = (i: number, j: number): boolean =>
+    isValid(i, j) && mineField[i][j].minesAround === bomb;
+
+  const isSquareEmpty = (i: number, j: number): boolean =>
+    isValid(i, j) && mineField[i][j].minesAround === 0;
 
   const openMineField = (arr: MineField[][], i: number, j: number) => {
     const dfs = (i: number, j: number) => {
@@ -116,15 +124,6 @@ const Minesweeper = (): JSX.Element => {
 
     return arr;
   };
-
-  const isSquareFlagged = (i: number, j: number): boolean =>
-    isValid(i, j) && mineField[i][j].symbol === symbols.FLAG;
-
-  const isSquareBomb = (i: number, j: number): boolean =>
-    isValid(i, j) && mineField[i][j].minesAround === bomb;
-
-  const isSquareEmpty = (i: number, j: number): boolean =>
-    isValid(i, j) && mineField[i][j].minesAround === 0;
 
   const countFlagsAround = (
     squaresAround: number[][],
