@@ -1,7 +1,7 @@
 // RxJS v6+
 import { map, of } from "rxjs";
 // import { renderMinefield, renderScore, renderGameOver } from './html-renderer';
-import { bomb, size } from "@models/constants";
+import { bomb, n_bombs, size } from "@models/constants";
 import { addMarks, addMines } from "@models/mines";
 import NextImage from "next/image";
 import { useCallback, useEffect, useState } from "react";
@@ -29,7 +29,7 @@ interface MineField {
 }
 
 const Minesweeper = (): JSX.Element => {
-  const [score, setScore] = useState(0);
+  const [score, setScore] = useState<number>(n_bombs);
   const [isEasyStart, setIsEasyStart] = useState<boolean>(true);
   const [gameState, setGameState] = useState<GameState>(gameStates.PLAYING);
   const [mineField, setMineField] = useState<MineField[][]>(
@@ -207,6 +207,7 @@ const Minesweeper = (): JSX.Element => {
 
   const handleReset = () => {
     getMinesSubscription();
+    setScore(n_bombs);
     setGameState(gameStates.PLAYING);
   };
 
@@ -254,15 +255,15 @@ const Minesweeper = (): JSX.Element => {
 
     newMineField[i][j].symbol = nextSymbol[newMineField[i][j].symbol];
     if (newMineField[i][j].symbol === symbols.FLAG) {
-      setScore((prev) => prev + 1);
-    } else if (newMineField[i][j].symbol === symbols.Q_MARK) {
       setScore((prev) => prev - 1);
+    } else if (newMineField[i][j].symbol === symbols.Q_MARK) {
+      setScore((prev) => prev + 1);
     }
 
     setMineField(newMineField);
   };
 
-  const getGameState = (): string => {
+  const getGameStateImage = (): string => {
     const gameStateMapping: { [key in GameState]: string } = {
       "": "/gameState/playing.svg",
       W: "/gameState/winner.svg",
@@ -284,7 +285,7 @@ const Minesweeper = (): JSX.Element => {
         <div className="flex justify-center py-2 bg-silver">
           <button onClick={handleReset}>
             <NextImage
-              src={getGameState()}
+              src={getGameStateImage()}
               width={64}
               height={64}
               alt="cell"
