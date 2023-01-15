@@ -1,7 +1,7 @@
 // RxJS v6+
 import { map, of } from "rxjs";
 // import { renderMinefield, renderScore, renderGameOver } from './html-renderer';
-import { bomb, n_bombs, size } from "@models/constants";
+import { bomb, n_bombs, size, squaresAround } from "@models/constants";
 import { addMarks, addMines } from "@models/mines";
 import NextImage from "next/image";
 import { useCallback, useEffect, useState } from "react";
@@ -15,6 +15,7 @@ const symbols: { [key in string]: Symbol } = {
   FLAG: "🚩",
   Q_MARK: "❔",
 };
+
 const gameStates: { [key in string]: GameState } = {
   PLAYING: "",
   WINNER: "W",
@@ -49,9 +50,25 @@ const Minesweeper = (): JSX.Element => {
     return Math.floor(Math.random() * max);
   }
 
+  const addEasyStart = (
+    zeros: { x: number; y: number }[],
+    newMines: MineField[][]
+  ) => {
+    if (isEasyStart) {
+      if (zeros.length !== 0) {
+        const coord: { x: number; y: number } =
+          zeros[getRandomInt(zeros.length)];
+
+        newMines[coord.x][coord.y].start = true;
+      } else {
+        console.error("There is no zeros, thus EasyStart does not exist!");
+      }
+    }
+  };
+
   const addClicked = useCallback((mines: number[][]): MineField[][] => {
     const zeros: { x: number; y: number }[] = [];
-    const newMines = mines.map((row: number[], i: number) =>
+    const newMines: MineField[][] = mines.map((row: number[], i: number) =>
       row.map((elem: number, j: number) => {
         if (elem === 0) {
           zeros.push({ x: i, y: j });
@@ -65,10 +82,7 @@ const Minesweeper = (): JSX.Element => {
       })
     );
 
-    if (isEasyStart) {
-      const coord: { x: number; y: number } = zeros[getRandomInt(zeros.length)];
-      newMines[coord.x][coord.y].start = true;
-    }
+    addEasyStart(zeros, newMines);
 
     return newMines;
   }, []);
@@ -101,26 +115,36 @@ const Minesweeper = (): JSX.Element => {
   const isSquareEmpty = (i: number, j: number): boolean =>
     isValid(i, j) && mineField[i][j].minesAround === 0;
 
+  const updateScore = (arr: MineField[][]): void => {
+    let score: number = n_bombs;
+    for (let i = 0; i < arr.length; i++) {
+      for (let j = 0; j < arr[i].length; j++) {
+        if (arr[i][j].symbol === symbols.FLAG) score--;
+      }
+    }
+    setScore(score);
+  };
+
+  // leetcode: number of islands problem
   const openMineField = (arr: MineField[][], i: number, j: number) => {
     const dfs = (i: number, j: number) => {
       if (isValid(i, j)) {
         if (arr[i][j].minesAround === 0 && arr[i][j].clicked !== true) {
           arr[i][j].clicked = true;
-          dfs(i + 1, j);
-          dfs(i - 1, j);
-          dfs(i, j + 1);
-          dfs(i, j - 1);
+          arr[i][j].symbol = symbols.EMPTY;
 
-          dfs(i + 1, j + 1);
-          dfs(i + 1, j - 1);
-          dfs(i - 1, j + 1);
-          dfs(i - 1, j - 1);
+          squaresAround.forEach(([x, y]) => {
+            dfs(i + x, j + y);
+          });
         }
 
         arr[i][j].clicked = true;
+        arr[i][j].symbol = symbols.EMPTY;
       }
     };
     dfs(i, j);
+
+    updateScore(arr);
 
     return arr;
   };
@@ -136,16 +160,6 @@ const Minesweeper = (): JSX.Element => {
     );
 
   const openAroundSquare = (i: number, j: number): void => {
-    const squaresAround: number[][] = [
-      [-1, -1],
-      [-1, 0],
-      [-1, 1],
-      [0, -1],
-      [0, 1],
-      [1, -1],
-      [1, 0],
-      [1, 1],
-    ];
     const numOfFlags = countFlagsAround(squaresAround, i, j);
 
     if (numOfFlags === mineField[i][j].minesAround) {
@@ -212,7 +226,7 @@ const Minesweeper = (): JSX.Element => {
   };
 
   const handleLeftClick = (i: number, j: number): void => {
-    if (!!gameState) {
+    if (!!gameState || mineField[i][j].symbol) {
       return;
     }
 
@@ -221,10 +235,6 @@ const Minesweeper = (): JSX.Element => {
     if (newMineField[i][j].clicked) {
       openAroundSquare(i, j);
     } else {
-      if (newMineField[i][j].symbol) {
-        return;
-      }
-
       newMineField[i][j].minesAround === 0
         ? (newMineField = openMineField(newMineField, i, j))
         : null;
@@ -241,7 +251,7 @@ const Minesweeper = (): JSX.Element => {
 
   const handleRightClick = (e: any, i: number, j: number) => {
     e.preventDefault();
-    if (!!gameState) {
+    if (!!gameState || mineField[i][j].clicked) {
       return;
     }
 
