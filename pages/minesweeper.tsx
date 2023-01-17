@@ -275,9 +275,9 @@ const Minesweeper = (): JSX.Element => {
 
   const getGameStateImage = (): string => {
     const gameStateMapping: { [key in GameState]: string } = {
-      "": "/gameState/playing.svg",
-      W: "/gameState/winner.svg",
-      L: "/gameState/loser.svg",
+      "": "/minesweeper/gameState/playing.svg",
+      W: "/minesweeper/gameState/winner.svg",
+      L: "/minesweeper/gameState/loser.svg",
     };
     return gameStateMapping[gameState];
   };
@@ -320,7 +320,7 @@ const Minesweeper = (): JSX.Element => {
                 >
                   <NextImage
                     src={
-                      "/minesweeperDesignImages/" +
+                      "/minesweeper/minefieldIcons/" +
                       getBackgroundImage(mine) +
                       ".svg"
                     }
