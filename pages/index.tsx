@@ -5,6 +5,12 @@ export default function Home(): JSX.Element {
   const goToMinesweeper = () => {
     Router.push("/minesweeper");
   };
+  const goToLivestream = () => {
+    Router.push("/livestreamPage");
+  };
+  const goToWaterstream = () => {
+    Router.push("/waterstreamPage");
+  };
 
   return (
     <>
@@ -15,6 +21,8 @@ export default function Home(): JSX.Element {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
+        <button onClick={goToLivestream}>Go to livestream</button>
+        <button onClick={goToWaterstream}>Go to waterstream</button>
         <button onClick={goToMinesweeper}>Go to minesweeper</button>
       </main>
     </>
