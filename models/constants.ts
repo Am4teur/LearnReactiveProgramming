@@ -11,3 +11,7 @@ export const squaresAround: number[][] = [
   [1, 0],
   [1, 1],
 ];
+
+export const getRandomInt = (max: number) => {
+  return Math.floor(Math.random() * max);
+};

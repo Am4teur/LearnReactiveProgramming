@@ -1,7 +1,13 @@
 // RxJS v6+
 import { map, of } from "rxjs";
 // import { renderMinefield, renderScore, renderGameOver } from './html-renderer';
-import { bomb, n_bombs, size, squaresAround } from "@models/constants";
+import {
+  bomb,
+  getRandomInt,
+  n_bombs,
+  size,
+  squaresAround,
+} from "@models/constants";
 import { addMarks, addMines } from "@models/mines";
 import NextImage from "next/image";
 import { useCallback, useEffect, useState } from "react";
@@ -45,10 +51,6 @@ const Minesweeper = (): JSX.Element => {
         })
       )
   );
-
-  function getRandomInt(max: number) {
-    return Math.floor(Math.random() * max);
-  }
 
   const addEasyStart = (
     zeros: { x: number; y: number }[],
