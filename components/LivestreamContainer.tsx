@@ -1,29 +1,28 @@
+import { getRandomInt } from "@models/constants";
 import { obsFunction$ } from "@models/reactive";
 import { motion } from "framer-motion";
 import NextImage from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { fromEvent, map } from "rxjs";
+import { fromEvent, Subject } from "rxjs";
 
 const LivestreamContainer = () => {
   const buttonEl = useRef<any>(null);
-  const count = useRef(0);
   const [frames, setFrames] = useState<string[]>([]);
   const [frames2, setFrames2] = useState<string[]>([]);
 
   useEffect(() => {
-    const obs$ = fromEvent(buttonEl.current, "click").pipe(map(getRandomFrame));
+    const subject$ = new Subject<string>();
+    const obs$ = fromEvent(buttonEl.current, "click").subscribe(() =>
+      subject$.next(getRandomFrame())
+    );
 
-    const interactiveObserver = obsFunction$(obs$);
+    const interactiveObserver = obsFunction$(subject$);
 
-    const subscriber = obs$.subscribe((e: string) => {
-      console.log("1sub", e);
-
+    const subscriber = subject$.subscribe((e: string) => {
       setFrames((prev) => [...prev, e]);
     });
 
     const subscriberInteractive = interactiveObserver.subscribe((e: string) => {
-      console.log("2sub", e);
-
       setFrames2((prev) => [...prev, e]);
     });
 
@@ -33,12 +32,8 @@ const LivestreamContainer = () => {
     };
   }, []);
 
-  const getRandomFrame = (): string => {
-    count.current = count.current + 1;
-    console.log(count.current);
-
-    return ["react-icon", "rxjs-icon"][count.current % 2];
-  };
+  const getRandomFrame = (): string =>
+    ["react-icon", "rxjs-icon"][getRandomInt(2)];
 
   const getFrameSrc = (frame: string): string =>
     "/livestream/frames/" + frame + ".png";
