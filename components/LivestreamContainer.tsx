@@ -1,5 +1,5 @@
 import { getRandomInt } from "@models/constants";
-import { obsFunction$ } from "@models/reactive";
+import { observableWithInteractiveFunctions } from "@models/reactive";
 import { motion } from "framer-motion";
 import NextImage from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -12,28 +12,30 @@ const LivestreamContainer = () => {
 
   useEffect(() => {
     const subject$ = new Subject<string>();
-    const obs$ = fromEvent(buttonEl.current, "click").subscribe(() =>
+    fromEvent(buttonEl.current, "click").subscribe(() =>
       subject$.next(getRandomFrame())
+    ); // subject pattern to add new event to stream/observable
+
+    const interactiveObservable = observableWithInteractiveFunctions(subject$);
+
+    // before executing interactive operators/functions
+    const subscription = subject$.subscribe((e: string) =>
+      setFrames((prev) => [...prev, e])
     );
 
-    const interactiveObserver = obsFunction$(subject$);
-
-    const subscriber = subject$.subscribe((e: string) => {
-      setFrames((prev) => [...prev, e]);
-    });
-
-    const subscriberInteractive = interactiveObserver.subscribe((e: string) => {
-      setFrames2((prev) => [...prev, e]);
-    });
+    // after executing interactive operators/functions
+    const interactiveSubscription = interactiveObservable.subscribe(
+      (e: string) => setFrames2((prev) => [...prev, e])
+    );
 
     return () => {
-      subscriber.unsubscribe();
-      subscriberInteractive.unsubscribe();
+      subscription.unsubscribe();
+      interactiveSubscription.unsubscribe();
     };
   }, []);
 
   const getRandomFrame = (): string =>
-    ["react-icon", "rxjs-icon"][getRandomInt(2)];
+    ["react-icon", "rxjs-icon", "rxjs-wrong-icon"][getRandomInt(3)];
 
   const getFrameSrc = (frame: string): string =>
     "/livestream/frames/" + frame + ".png";
@@ -56,7 +58,7 @@ const LivestreamContainer = () => {
 
         <div
           className="pipe self-center absolute border-solid border-white border rounded-md w-32 h-64
-        bg-gray-600"
+        bg-gray-600 z-10"
         ></div>
 
         <div className="screen self-end absolute border-solid border-white border-2 rounded-md w-32 h-32"></div>
