@@ -40,7 +40,7 @@ const LivestreamContainer = () => {
   const getFrameSrc = (frame: string): string =>
     "/livestream/frames/" + frame + ".png";
 
-  const velo = 0.5;
+  const velo = 2;
 
   return (
     <>
@@ -53,15 +53,26 @@ const LivestreamContainer = () => {
         >
           Send Event
         </button>
-
         <div className="generator self-start absolute border-solid border-white border-2 rounded-md w-32 h-32"></div>
 
-        <div
-          className="pipe self-center absolute border-solid border-white border rounded-md w-32 h-64
-        bg-gray-600 z-10"
-        ></div>
+        <div className="pipe self-center absolute w-64 h-64 z-10">
+          <NextImage
+            className="z-30"
+            src="/livestream/background/pipe-1000.png"
+            alt="Pipe"
+            fill
+          ></NextImage>
+        </div>
 
-        <div className="screen self-end absolute border-solid border-white border-2 rounded-md w-32 h-32"></div>
+        {/* border-solid border-white border-2 */}
+        <div className="z-10 screen self-end absolute rounded-md w-32 h-32">
+          <NextImage
+            src="/livestream/background/macbook-1000.png"
+            alt="Macbook"
+            width={800}
+            height={800}
+          ></NextImage>
+        </div>
 
         {frames.map((frame: any, i: number) => (
           <motion.div
@@ -86,7 +97,7 @@ const LivestreamContainer = () => {
             className="self-center absolute flex items-center justify-center
             border-solid border-black border-2 rounded-md w-16 h-16 bg-blue-400"
             initial={{ y: "0" }}
-            animate={{ y: "550%" }} // hardcoded values
+            animate={{ y: "535%" }} // hardcoded values
             transition={{ delay: velo, duration: velo, ease: "linear" }}
           >
             <NextImage
