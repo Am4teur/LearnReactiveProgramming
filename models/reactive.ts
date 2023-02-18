@@ -1,25 +1,33 @@
-import { filter, from } from "rxjs";
+import { filter, from, Observable, tap } from "rxjs";
 
-const framesStream1 = ["frame1", "frame2", "frame3"];
-// const framesStream2 = ["wrong-frame1", "frame2", "frame3"];
-// const framesStream3 = ["frame1", "frame2", "frame3"];
+// 1. Streams
+const streamOfStrings: string[] = ["frame1", "frame2", "frame3"];
+const streamOfIcons: string[] = [];
 
-const obs$ = from(["frame1", "frame2", "frame3"]).pipe(
-  filter((e: any) => e === "react-icon")
-  // tap((e: any) => {}),
-  // map((e: any) => console.log(e))
-);
+// 2. Observables
+const simpleObservable$ = new Observable();
+const fromObservable$ = from(streamOfStrings);
+const fromObservable2$ = from(streamOfStrings)
+  .pipe()
+  .subscribe((event: string) => console.log(event));
 
-export const observableWithInteractiveFunctions = (subject: any) =>
-  subject.pipe(
-    // distinct()
-    filter((e: string) => !e.includes("wrong"))
-    // tap((e: any) => console.log(e))
-    // take
+// 3. Pipping
+export const observableWithInteractiveFunctions = (observable$: any) =>
+  observable$.pipe(
+    // 3.1. Operators
+    // tap()
+    tap((event: any) => alert(event)),
+    // filter()
+    filter((event: string) => !event.includes("angular"))
+    // map()
     // map((e: string) => (e.includes("wrong") ? "rxjs-icon" : e))
-    // do several at the same time
 
-    // merge
     // delay(1000)
     // throttleTime(1000)
+    // distinct()
+    // take
+    // merge
   );
+
+// 5. Subscription
+// 6. Subject
