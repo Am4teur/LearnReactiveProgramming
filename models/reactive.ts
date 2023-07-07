@@ -1,4 +1,4 @@
-import { filter, from, Observable, tap } from "rxjs";
+import { filter, from, Observable } from "rxjs";
 
 // 1. Streams
 const streamOfStrings: string[] = ["frame1", "frame2", "frame3"];
@@ -16,7 +16,7 @@ export const observableWithInteractiveFunctions = (observable$: any) =>
   observable$.pipe(
     // 3.1. Operators
     // tap()
-    tap((event: any) => alert(event)),
+    // tap((event: any) => alert(event)),
     // filter()
     filter((event: string) => !event.includes("angular"))
     // map()
@@ -29,5 +29,5 @@ export const observableWithInteractiveFunctions = (observable$: any) =>
     // merge
   );
 
-// 5. Subscription
-// 6. Subject
+// 4. Subscription
+// 5. Subject

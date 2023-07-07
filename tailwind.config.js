@@ -8,6 +8,7 @@ module.exports = {
     extend: {
       colors: {
         silver: "#c6c6c6",
+        transparentGray: "#00000010",
       },
       backgroundImage: {
         closed:

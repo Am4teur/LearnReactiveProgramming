@@ -2,7 +2,7 @@ import { getRandomInt } from "@models/constants";
 import { observableWithInteractiveFunctions } from "@models/reactive";
 import { useAnimationControls } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { fromEvent, Subject } from "rxjs";
+import { Subject, fromEvent } from "rxjs";
 import { Pipe } from "./Pipe";
 import { Screen } from "./Screen";
 import { StreamGenerator } from "./StreamGenerator";
@@ -57,16 +57,15 @@ const LivestreamContainer = () => {
   return (
     <>
       <div className="flex h-full w-full justify-center bg-slate-400 py-8">
-        <button
-          ref={buttonEl}
-          className="absolute left-5 top-5
-           rounded border border-[#60dafa] bg-[#60dafa] py-2 px-4 font-bold
-             shadow hover:border-blue-500 hover:bg-blue-500
-             disabled:pointer-events-none disabled:opacity-25"
-          onClick={sequence}
-        >
-          Send Event
-        </button>
+        {/* This button is on top of StreamGenerator because I cannot pass the logic of the onClick inside the StreamGenerator
+         since I have to access information on the parent component */}
+        <div>
+          <button
+            ref={buttonEl}
+            className="relative z-30 h-40 w-40 rounded-full hover:bg-transparentGray"
+            onClick={sequence}
+          ></button>
+        </div>
 
         <StreamGenerator
           beforePipeFrames={beforePipeFrames}
