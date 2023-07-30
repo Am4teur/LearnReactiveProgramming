@@ -28,9 +28,12 @@ const LivestreamContainer = () => {
       subject$.next(getRandomFrame())
     ); // subject pattern to add new event to stream/observable
 
-    const interactiveObservable = observableWithInteractiveFunctions(subject$);
+    const interactiveObservable = observableWithInteractiveFunctions(
+      subject$,
+      buttonEl.current
+    );
 
-    // after executing interactive operators/functions
+    // after executing interactive operators/functions from reactive.ts
     const interactiveSubscription = interactiveObservable.subscribe(
       (e: string) => setAfterPipeFrames((prev) => [...prev, e])
     );
@@ -56,15 +59,19 @@ const LivestreamContainer = () => {
 
   return (
     <>
-      <div className="flex h-full w-full justify-center bg-slate-400 py-8">
+      <div className="flex h-full w-full justify-center bg-gradient-to-bl from-[#41D8DD] to-[#5583EE]">
         {/* This button is on top of StreamGenerator because I cannot pass the logic of the onClick inside the StreamGenerator
          since I have to access information on the parent component */}
         <div>
           <button
             ref={buttonEl}
-            className="relative z-30 h-40 w-40 rounded-full hover:bg-transparentGray"
+            className="relative z-30 m-20 h-40 w-40 rounded-full hover:bg-transparentGray"
             onClick={sequence}
           ></button>
+        </div>
+
+        <div className="absolute m-4 items-start rounded border border-solid border-white bg-gray-500 p-4 text-center">
+          Click on the gear to generate an image
         </div>
 
         <StreamGenerator

@@ -20,10 +20,12 @@ export default function Home(): JSX.Element {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
-        <button onClick={goToLivestream}>Go to livestream</button>
-        <button onClick={goToWaterstream}>Go to waterstream</button>
-        <button onClick={goToMinesweeper}>Go to minesweeper</button>
+      <main className="h-full w-full">
+        <div className="flex h-full w-full flex-col items-center justify-center gap-4">
+          <button onClick={goToMinesweeper}>Minesweeper</button>
+          <button onClick={goToLivestream}>Livestream</button>
+          <button onClick={goToWaterstream}>Waterstream</button>
+        </div>
       </main>
     </>
   );

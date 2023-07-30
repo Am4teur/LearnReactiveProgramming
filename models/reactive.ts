@@ -1,19 +1,20 @@
-import { filter, from, Observable } from "rxjs";
+import { filter, from, fromEvent, throttleTime } from "rxjs";
 
-// 1. Streams
 const streamOfStrings: string[] = ["frame1", "frame2", "frame3"];
-const streamOfIcons: string[] = [];
 
 // 2. Observables
-const simpleObservable$ = new Observable();
-const fromObservable$ = from(streamOfStrings);
-const fromObservable2$ = from(streamOfStrings)
-  .pipe()
-  .subscribe((event: string) => console.log(event));
+const observableFromArray$ = from(streamOfStrings);
 
 // 3. Pipping
-export const observableWithInteractiveFunctions = (observable$: any) =>
-  observable$.pipe(
+export const observableWithInteractiveFunctions = (
+  observable$: any,
+  buttonRef: any
+) => {
+  const observableFromUserEvent$ = fromEvent(buttonRef, "click")
+    .pipe(throttleTime(1000))
+    .subscribe((event: any) => console.log("event: "));
+
+  return observable$.pipe(
     // 3.1. Operators
     // tap()
     // tap((event: any) => alert(event)),
@@ -28,6 +29,7 @@ export const observableWithInteractiveFunctions = (observable$: any) =>
     // take
     // merge
   );
+};
 
 // 4. Subscription
 // 5. Subject

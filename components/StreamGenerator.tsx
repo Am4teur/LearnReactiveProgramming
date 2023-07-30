@@ -38,8 +38,8 @@ export const StreamGenerator = ({
 }: IStreamGenerator) => {
   return (
     <div
-      className="generator absolute flex h-40 w-40 items-center
-                 justify-center self-start"
+      className="generator absolute m-20 flex h-40 w-40
+                 items-center justify-center self-start"
     >
       <motion.div className="absolute z-10" animate={animation}>
         <NextImage
