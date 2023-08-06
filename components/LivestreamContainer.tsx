@@ -83,7 +83,6 @@ const LivestreamContainer = () => {
           afterPipeFrames={afterPipeFrames}
           velo={velo}
           getFrameSrc={getFrameSrc}
-          isHidden
         />
       </div>
     </>

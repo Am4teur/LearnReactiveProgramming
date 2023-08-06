@@ -10,9 +10,9 @@ interface IStreamGenerator {
 const variant = {
   init: { opacity: 1, scale: 0, y: 0 },
   visible: {
-    opacity: 0,
+    // opacity: 0,
     scale: 1,
-    y: "40vh", // 40vh -> 75vh change for images to go to the <Screen /> (macbook image)
+    y: "75vh", // 40vh -> 75vh change for images to go to the <Screen /> (macbook image)
     transition: {
       type: "tween",
       scale: {
@@ -23,11 +23,11 @@ const variant = {
         duration: 2,
         delay: 1,
       },
-      // comment thisto permanentely show image on <Screen /> (macbook image)
-      opacity: {
-        duration: 0,
-        delay: 3,
-      },
+      // comment this to permanentely show image on <Screen /> (macbook image)
+      // opacity: {
+      //   duration: 0,
+      //   delay: 3,
+      // },
     },
   },
 };
