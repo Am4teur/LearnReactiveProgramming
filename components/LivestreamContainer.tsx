@@ -77,7 +77,7 @@ const LivestreamContainer = () => {
           animation={animation}
         />
 
-        <Pipe isHidden />
+        <Pipe />
 
         <Screen
           afterPipeFrames={afterPipeFrames}

@@ -29,7 +29,7 @@ export const Screen = ({
       {afterPipeFrames.map((frame: any, i: number) => (
         <motion.div
           key={i}
-          className="invisible absolute flex h-16
+          className="absolute flex h-16
                     w-16 items-center justify-center"
           initial={{ y: "-40vh" }}
           animate={{ y: "0" }} // hardcoded values

@@ -11,7 +11,7 @@ export const observableWithPipe = (observable$: any) => {
     observable$
       // 3. Piping (Operators)
       .pipe(
-        filter((e: string) => !e.includes("filter"))
+        filter((e: string) => !e.includes("rxjs"))
         // map((e: string) => (e.includes("wrong") ? "rxjs-icon" : e))
         // tap()
         // tap((event: any) => alert(event)),
