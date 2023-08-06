@@ -1,5 +1,5 @@
-const waterstreamPage = () => {
+const waterstream = () => {
   return <div>waterstream</div>;
 };
 
-export default waterstreamPage;
+export default waterstream;

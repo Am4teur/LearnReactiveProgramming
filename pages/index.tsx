@@ -6,10 +6,10 @@ export default function Home(): JSX.Element {
     Router.push("/minesweeper");
   };
   const goToLivestream = () => {
-    Router.push("/livestreamPage");
+    Router.push("/livestream");
   };
   const goToWaterstream = () => {
-    Router.push("/waterstreamPage");
+    Router.push("/waterstream");
   };
 
   return (
