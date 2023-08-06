@@ -1,5 +1,5 @@
 import { getRandomInt } from "@models/constants";
-import { observableWithInteractiveFunctions } from "@models/reactive";
+import { observableWithPipe } from "@models/reactive";
 import { useAnimationControls } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Subject, fromEvent } from "rxjs";
@@ -28,10 +28,7 @@ const LivestreamContainer = () => {
       subject$.next(getRandomFrame())
     ); // subject pattern to add new event to stream/observable
 
-    const interactiveObservable = observableWithInteractiveFunctions(
-      subject$,
-      buttonEl.current
-    );
+    const interactiveObservable = observableWithPipe(subject$);
 
     // after executing interactive operators/functions from reactive.ts
     const interactiveSubscription = interactiveObservable.subscribe(
@@ -50,7 +47,7 @@ const LivestreamContainer = () => {
   }, []);
 
   const getRandomFrame = (): string =>
-    ["react-icon", "rxjs-icon", "angular-icon"][getRandomInt(3)];
+    ["react-icon", "rxjs-icon", "angular-icon", "vue-icon"][getRandomInt(4)];
 
   const getFrameSrc = (frame: string): string =>
     "/livestream/frames/" + frame + ".png";
@@ -80,12 +77,13 @@ const LivestreamContainer = () => {
           animation={animation}
         />
 
-        <Pipe />
+        <Pipe isHidden />
 
         <Screen
           afterPipeFrames={afterPipeFrames}
           velo={velo}
           getFrameSrc={getFrameSrc}
+          isHidden
         />
       </div>
     </>

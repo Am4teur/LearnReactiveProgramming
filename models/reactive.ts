@@ -1,35 +1,34 @@
-import { filter, from, fromEvent, throttleTime } from "rxjs";
+import { filter, from, Subject } from "rxjs";
 
-const streamOfStrings: string[] = ["frame1", "frame2", "frame3"];
+const array: string[] = ["rxjs", "react", "angular", "vue"];
 
-// 2. Observables
-const observableFromArray$ = from(streamOfStrings);
+// 1. Observables (Streams)
+const observableFromArray$ = from(array);
 
-// 3. Pipping
-export const observableWithInteractiveFunctions = (
-  observable$: any,
-  buttonRef: any
-) => {
-  const observableFromUserEvent$ = fromEvent(buttonRef, "click")
-    .pipe(throttleTime(1000))
-    .subscribe((event: any) => console.log("event: "));
-
-  return observable$.pipe(
-    // 3.1. Operators
-    // tap()
-    // tap((event: any) => alert(event)),
-    // filter()
-    filter((event: string) => !event.includes("angular"))
-    // map()
-    // map((e: string) => (e.includes("wrong") ? "rxjs-icon" : e))
-
-    // delay(1000)
-    // throttleTime(1000)
-    // distinct()
-    // take
-    // merge
+// 2. Observer
+export const observableWithPipe = (observable$: any) => {
+  return (
+    observable$
+      // 3. Piping (Operators)
+      .pipe(
+        filter((e: string) => !e.includes("filter"))
+        // map((e: string) => (e.includes("wrong") ? "rxjs-icon" : e))
+        // tap()
+        // tap((event: any) => alert(event)),
+        // delay(1000)
+        // throttleTime(1000)
+        // distinct()
+        // take()
+        // merge()
+      )
   );
 };
 
 // 4. Subscription
+const subscription = observableFromArray$.subscribe((event: any) =>
+  console.log(event)
+);
+subscription.unsubscribe();
+
 // 5. Subject
+const subject = new Subject();
